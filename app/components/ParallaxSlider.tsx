@@ -57,6 +57,12 @@ export default function ParallaxSlider() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Ensure component only uses scroll hooks after hydration
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -68,7 +74,9 @@ export default function ParallaxSlider() {
 
     // Update active index based on scroll using the modern approach
     useMotionValueEvent(slideProgress, "change", (latest) => {
-        setActiveIndex(Math.round(latest));
+        if (isMounted) {
+            setActiveIndex(Math.round(latest));
+        }
     });
 
     // 3D Element parallax transforms
