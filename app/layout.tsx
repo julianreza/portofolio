@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   keywords: ["Full Stack Engineer", "Tech Lead", "React", "Next.js", "Golang", "Node.js", "Software Developer", "Indonesia"],
   authors: [{ name: "Reza Julian" }],
   creator: "Reza Julian",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
