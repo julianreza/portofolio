@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence, useMotionValueEvent } from 'framer-motion';
 import { getIconUrl } from '../lib/icons';
 
 interface SlideData {
@@ -66,12 +66,10 @@ export default function ParallaxSlider() {
     // Calculate which slide should be active based on scroll
     const slideProgress = useTransform(scrollYProgress, [0, 1], [0, slides.length - 1]);
 
-    // Update active index based on scroll
-    useEffect(() => {
-        return slideProgress.onChange((latest) => {
-            setActiveIndex(Math.round(latest));
-        });
-    }, [slideProgress]);
+    // Update active index based on scroll using the modern approach
+    useMotionValueEvent(slideProgress, "change", (latest) => {
+        setActiveIndex(Math.round(latest));
+    });
 
     // 3D Element parallax transforms
     const element3DY = useTransform(scrollYProgress, [0, 0.5, 1], [-100, 0, 100]);
