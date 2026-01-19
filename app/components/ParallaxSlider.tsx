@@ -58,6 +58,39 @@ export default function ParallaxSlider() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [scrollProgress, setScrollProgress] = useState(0);
+    const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    // Use IntersectionObserver for reliable slide detection on Vercel
+    useEffect(() => {
+        const observers: IntersectionObserver[] = [];
+
+        slides.forEach((_, index) => {
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                            setActiveIndex(index);
+                            setScrollProgress(index / (slides.length - 1));
+                        }
+                    });
+                },
+                {
+                    threshold: [0.3, 0.5, 0.7],
+                    rootMargin: '-30% 0px -30% 0px'
+                }
+            );
+
+            const slideRef = slideRefs.current[index];
+            if (slideRef) {
+                observer.observe(slideRef);
+            }
+            observers.push(observer);
+        });
+
+        return () => {
+            observers.forEach(observer => observer.disconnect());
+        };
+    }, []);
 
     // Manual scroll tracking that works reliably on Vercel
     useEffect(() => {
@@ -136,6 +169,17 @@ export default function ParallaxSlider() {
             className="relative bg-black lg:block"
             style={{ height: `${slides.length * 100}vh` }}
         >
+            {/* Invisible slide trigger elements for IntersectionObserver */}
+            {slides.map((_, index) => (
+                <div
+                    key={`trigger-${index}`}
+                    ref={(el) => { slideRefs.current[index] = el; }}
+                    className="absolute w-full h-screen pointer-events-none"
+                    style={{ top: `${index * 100}vh` }}
+                    aria-hidden="true"
+                />
+            ))}
+
             {/* Fixed viewport */}
             <div className="sticky top-0 h-screen overflow-hidden">
                 {/* Animated gradient background */}
