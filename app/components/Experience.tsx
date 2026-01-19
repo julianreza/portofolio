@@ -1,6 +1,7 @@
 'use client';
 
 import useScrollAnimation from '../hooks/useScrollAnimation';
+import { getIconUrl } from '../lib/icons';
 
 const experiences = [
     {
@@ -140,8 +141,8 @@ export default function Experience() {
                                 <div className={`md:w-1/2 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'} ml-8 md:ml-0`}>
                                     <div
                                         className={`card hover-lift transition-all duration-700 ${timelineVisible
-                                                ? 'opacity-100 translate-y-0'
-                                                : 'opacity-0 translate-y-10'
+                                            ? 'opacity-100 translate-y-0'
+                                            : 'opacity-0 translate-y-10'
                                             }`}
                                         style={{ transitionDelay: `${index * 150 + 100}ms` }}
                                     >
@@ -154,8 +155,8 @@ export default function Experience() {
                                             </div>
                                             <div className="text-right">
                                                 <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${exp.current
-                                                        ? 'bg-green-500/10 text-green-500 border border-green-500/20'
-                                                        : 'bg-muted/10 text-muted border border-border'
+                                                    ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                                                    : 'bg-muted/10 text-muted border border-border'
                                                     }`}>
                                                     {exp.current ? '🟢 Current' : exp.type}
                                                 </span>
@@ -175,14 +176,26 @@ export default function Experience() {
 
                                         {/* Skills */}
                                         <div className="flex flex-wrap gap-2">
-                                            {exp.skills.map((skill) => (
-                                                <span
-                                                    key={skill}
-                                                    className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-md"
-                                                >
-                                                    {skill}
-                                                </span>
-                                            ))}
+                                            {exp.skills.map((skill) => {
+                                                const iconUrl = getIconUrl(skill);
+                                                return (
+                                                    <span
+                                                        key={skill}
+                                                        className="inline-flex items-center px-2 py-1 text-xs bg-primary/10 text-primary rounded-md"
+                                                    >
+                                                        {iconUrl && (
+                                                            <img
+                                                                src={iconUrl}
+                                                                alt=""
+                                                                className="w-3 h-3 mr-1.5 object-contain transition-[filter] duration-300"
+                                                                style={{ filter: 'var(--icon-filter)' }}
+                                                                onError={(e) => e.currentTarget.style.display = 'none'}
+                                                            />
+                                                        )}
+                                                        {skill}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </div>

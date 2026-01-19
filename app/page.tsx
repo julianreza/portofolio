@@ -1,5 +1,6 @@
 import Navigation from "./components/Navigation";
 import Hero from "./components/Hero";
+import ParallaxSlider from "./components/ParallaxSlider";
 import About from "./components/About";
 import Skills from "./components/Skills";
 import Experience from "./components/Experience";
@@ -13,6 +14,7 @@ export default function Home() {
       <Navigation />
       <main>
         <Hero />
+        <ParallaxSlider />
         <About />
         <Skills />
         <Experience />

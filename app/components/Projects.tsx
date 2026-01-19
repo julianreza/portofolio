@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import useScrollAnimation from '../hooks/useScrollAnimation';
+import { getIconUrl } from '../lib/icons';
 import ProjectModal from './ProjectModal';
 
 interface ProjectImage {
@@ -206,8 +207,8 @@ export default function Projects() {
                                     setShowAll(false);
                                 }}
                                 className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 ${activeCategory === category
-                                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                                        : 'bg-background border border-border text-muted hover:border-primary hover:text-primary'
+                                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                                    : 'bg-background border border-border text-muted hover:border-primary hover:text-primary'
                                     }`}
                             >
                                 {category}
@@ -222,8 +223,8 @@ export default function Projects() {
                                 key={project.title}
                                 onClick={() => openModal(project)}
                                 className={`card hover-lift group cursor-pointer transition-all duration-500 ${gridVisible
-                                        ? 'opacity-100 translate-y-0 scale-100'
-                                        : 'opacity-0 translate-y-10 scale-95'
+                                    ? 'opacity-100 translate-y-0 scale-100'
+                                    : 'opacity-0 translate-y-10 scale-95'
                                     }`}
                                 style={{ transitionDelay: `${(index % 6) * 100}ms` }}
                             >
@@ -283,14 +284,26 @@ export default function Projects() {
 
                                 {/* Skills */}
                                 <div className="flex flex-wrap gap-2 mt-auto">
-                                    {project.skills.slice(0, 3).map((skill) => (
-                                        <span
-                                            key={skill}
-                                            className="px-2 py-1 text-xs bg-background border border-border rounded-md"
-                                        >
-                                            {skill}
-                                        </span>
-                                    ))}
+                                    {project.skills.slice(0, 3).map((skill) => {
+                                        const iconUrl = getIconUrl(skill);
+                                        return (
+                                            <span
+                                                key={skill}
+                                                className="inline-flex items-center px-2 py-1 text-xs bg-background border border-border rounded-md"
+                                            >
+                                                {iconUrl && (
+                                                    <img
+                                                        src={iconUrl}
+                                                        alt=""
+                                                        className="w-3 h-3 mr-1.5 object-contain transition-[filter] duration-300"
+                                                        style={{ filter: 'var(--icon-filter)' }}
+                                                        onError={(e) => e.currentTarget.style.display = 'none'}
+                                                    />
+                                                )}
+                                                {skill}
+                                            </span>
+                                        );
+                                    })}
                                     {project.skills.length > 3 && (
                                         <span className="px-2 py-1 text-xs text-muted">
                                             +{project.skills.length - 3} more

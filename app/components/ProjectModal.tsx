@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
+import { getIconUrl } from '../lib/icons';
 
 interface ProjectImage {
     src: string;
@@ -154,18 +155,30 @@ export default function ProjectModal({
                             Technologies Used:
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                            {project.skills.map((skill) => (
-                                <span
-                                    key={skill}
-                                    className="px-3 py-1 text-sm rounded-md"
-                                    style={{
-                                        backgroundColor: 'var(--background)',
-                                        border: '1px solid var(--border)'
-                                    }}
-                                >
-                                    {skill}
-                                </span>
-                            ))}
+                            {project.skills.map((skill) => {
+                                const iconUrl = getIconUrl(skill);
+                                return (
+                                    <span
+                                        key={skill}
+                                        className="inline-flex items-center px-3 py-1 text-sm rounded-md"
+                                        style={{
+                                            backgroundColor: 'var(--background)',
+                                            border: '1px solid var(--border)'
+                                        }}
+                                    >
+                                        {iconUrl && (
+                                            <img
+                                                src={iconUrl}
+                                                alt=""
+                                                className="w-4 h-4 mr-2 object-contain transition-[filter] duration-300"
+                                                style={{ filter: 'var(--icon-filter)' }}
+                                                onError={(e) => e.currentTarget.style.display = 'none'}
+                                            />
+                                        )}
+                                        {skill}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
 

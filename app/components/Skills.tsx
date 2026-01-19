@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, staggerContainer, staggerItem, fadeInUp, scaleIn } from '../lib/animations';
+import { getIconUrl } from '../lib/icons';
 
 const skillCategories = [
     {
@@ -135,17 +136,29 @@ export default function Skills() {
                                 whileInView="visible"
                                 viewport={{ once: true }}
                             >
-                                {category.skills.map((skill) => (
-                                    <motion.span
-                                        key={skill}
-                                        variants={staggerItem}
-                                        whileHover={{ scale: 1.1, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="px-3 py-1.5 text-sm bg-background rounded-full border border-border transition-colors duration-300 hover:border-primary hover:text-primary cursor-pointer"
-                                    >
-                                        {skill}
-                                    </motion.span>
-                                ))}
+                                {category.skills.map((skill) => {
+                                    const iconUrl = getIconUrl(skill);
+                                    return (
+                                        <motion.span
+                                            key={skill}
+                                            variants={staggerItem}
+                                            whileHover={{ scale: 1.1, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="inline-flex items-center px-3 py-1.5 text-sm bg-background rounded-full border border-border transition-colors duration-300 hover:border-primary hover:text-primary cursor-pointer"
+                                        >
+                                            {iconUrl && (
+                                                <img
+                                                    src={iconUrl}
+                                                    alt=""
+                                                    className="w-4 h-4 mr-2 object-contain transition-[filter] duration-300"
+                                                    style={{ filter: 'var(--icon-filter)' }}
+                                                    onError={(e) => e.currentTarget.style.display = 'none'}
+                                                />
+                                            )}
+                                            {skill}
+                                        </motion.span>
+                                    );
+                                })}
                             </motion.div>
                         </motion.div>
                     ))}

@@ -359,6 +359,13 @@ export default function Hero() {
     const gridY = useSpring(useTransform(scrollYProgress, [0, 1], [0, 50]), { stiffness: 100, damping: 30 });
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.5]);
 
+    // Keyboard parallax - fixed position that moves down as user scrolls through sections
+    const keyboardY = useSpring(useTransform(scrollYProgress, [0, 1], [0, 500]), { stiffness: 60, damping: 25 });
+    const keyboardRotateX = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [12, 18, 22, 28]);
+    const keyboardRotateY = useTransform(scrollYProgress, [0, 0.5, 1], [0, 5, -3]);
+    const keyboardScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.05, 0.95]);
+    const keyboardOpacity = useTransform(scrollYProgress, [0, 0.9, 1], [1, 1, 0.7]);
+
     return (
         <section ref={sectionRef} className="min-h-screen flex items-center justify-center relative overflow-hidden">
             {/* Dynamic Background - changes on keypress */}
@@ -438,23 +445,25 @@ export default function Hero() {
                 />
             ))}
 
-            {/* Floating code on keypress */}
-            {floatingCode.map(code => (
-                <div
-                    key={code.id}
-                    className="absolute pointer-events-none font-mono text-sm font-bold animate-pulse"
-                    style={{
-                        left: `${code.x}%`,
-                        top: `${code.y}%`,
-                        color: code.color,
-                        textShadow: `0 0 10px ${code.color}, 0 0 20px ${code.color}`,
-                        animation: 'floatUp 2s ease-out forwards',
-                        opacity: 0.8,
-                    }}
-                >
-                    {code.code}
-                </div>
-            ))}
+            {/* Floating code on keypress - hidden on mobile */}
+            <div className="hidden md:block">
+                {floatingCode.map(code => (
+                    <div
+                        key={code.id}
+                        className="absolute pointer-events-none font-mono text-sm font-bold animate-pulse"
+                        style={{
+                            left: `${code.x}%`,
+                            top: `${code.y}%`,
+                            color: code.color,
+                            textShadow: `0 0 10px ${code.color}, 0 0 20px ${code.color}`,
+                            animation: 'floatUp 2s ease-out forwards',
+                            opacity: 0.8,
+                        }}
+                    >
+                        {code.code}
+                    </div>
+                ))}
+            </div>
 
 
             {/* Main Content */}
@@ -501,74 +510,84 @@ export default function Hero() {
                                 transition: 'transform 0.1s ease-out',
                             }}
                         >
-                            <div
-                                className="rounded-2xl p-3 shadow-2xl transition-all duration-500"
-                                style={{
-                                    background: isDark
-                                        ? 'linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%)'
-                                        : 'linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)',
-                                    boxShadow: isDark
-                                        ? `0 50px 100px -20px rgba(0, 0, 0, 0.7), 0 0 ${pressedKeys.size * 20}px rgba(139, 92, 246, 0.3)`
-                                        : `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 ${pressedKeys.size * 20}px rgba(59, 130, 246, 0.2)`,
-                                }}
-                            >
-                                {/* LED strip */}
+                            <div>
                                 <div
-                                    className="absolute -bottom-1 left-4 right-4 h-1 rounded-full transition-all duration-300"
                                     style={{
-                                        background: `linear-gradient(90deg, ${pressedKeys.size > 0 ? '#ec4899' : '#3b82f6'}, #8b5cf6, ${pressedKeys.size > 0 ? '#3b82f6' : '#ec4899'})`,
-                                        boxShadow: `0 0 ${20 + pressedKeys.size * 10}px ${pressedKeys.size > 0 ? '#ec4899' : '#8b5cf6'}`,
+                                        transform: `rotateX(${mousePosition.y * 3}deg) rotateY(${mousePosition.x * 5}deg)`,
+                                        transformStyle: 'preserve-3d',
+                                        transition: 'transform 0.1s ease-out',
                                     }}
-                                />
+                                >
+                                    <div
+                                        className="rounded-2xl p-3 shadow-2xl transition-all duration-500"
+                                        style={{
+                                            background: isDark
+                                                ? 'linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%)'
+                                                : 'linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)',
+                                            boxShadow: isDark
+                                                ? `0 50px 100px -20px rgba(0, 0, 0, 0.7), 0 0 ${pressedKeys.size * 20}px rgba(139, 92, 246, 0.3)`
+                                                : `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 ${pressedKeys.size * 20}px rgba(59, 130, 246, 0.2)`,
+                                        }}
+                                    >
+                                        {/* LED strip */}
+                                        <div
+                                            className="absolute -bottom-1 left-4 right-4 h-1 rounded-full transition-all duration-300"
+                                            style={{
+                                                background: `linear-gradient(90deg, ${pressedKeys.size > 0 ? '#ec4899' : '#3b82f6'}, #8b5cf6, ${pressedKeys.size > 0 ? '#3b82f6' : '#ec4899'})`,
+                                                boxShadow: `0 0 ${20 + pressedKeys.size * 10}px ${pressedKeys.size > 0 ? '#ec4899' : '#8b5cf6'}`,
+                                            }}
+                                        />
 
-                                <div className="flex flex-col gap-1">
-                                    {keyboardLayout.map((row, rowIndex) => (
-                                        <div key={rowIndex} className="flex gap-1 justify-center">
-                                            {row.map((key, keyIndex) => {
-                                                const isPressed = pressedKeys.has(key) || pressedKeys.has(key.toUpperCase());
-                                                return (
-                                                    <button
-                                                        key={`${rowIndex}-${keyIndex}`}
-                                                        onClick={() => handleKeyClick(key)}
-                                                        className={`${getKeyWidth(key)} h-8 rounded-md flex items-center justify-center text-[10px] font-medium select-none transition-all duration-100 hover:brightness-110`}
-                                                        style={{
-                                                            background: isPressed
-                                                                ? 'linear-gradient(145deg, #3b82f6, #8b5cf6)'
-                                                                : isDark
-                                                                    ? 'linear-gradient(145deg, #2a2a3e, #1a1a2e)'
-                                                                    : 'linear-gradient(145deg, #f8fafc, #e2e8f0)',
-                                                            color: isPressed ? '#fff' : isDark ? '#888' : '#374151',
-                                                            boxShadow: isPressed
-                                                                ? '0 0 15px rgba(139, 92, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.3)'
-                                                                : isDark
-                                                                    ? 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)'
-                                                                    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.1)',
-                                                            transform: isPressed ? 'translateY(2px)' : '',
-                                                            border: isDark ? 'none' : '1px solid #e2e8f0',
-                                                        }}
-                                                    >
-                                                        {key}
-                                                    </button>
-                                                );
-                                            })}
+                                        <div className="flex flex-col gap-1">
+                                            {keyboardLayout.map((row, rowIndex) => (
+                                                <div key={rowIndex} className="flex gap-1 justify-center">
+                                                    {row.map((key, keyIndex) => {
+                                                        const isPressed = pressedKeys.has(key) || pressedKeys.has(key.toUpperCase());
+                                                        return (
+                                                            <button
+                                                                key={`${rowIndex}-${keyIndex}`}
+                                                                onClick={() => handleKeyClick(key)}
+                                                                className={`${getKeyWidth(key)} h-8 rounded-md flex items-center justify-center text-[10px] font-medium select-none transition-all duration-100 hover:brightness-110`}
+                                                                style={{
+                                                                    background: isPressed
+                                                                        ? 'linear-gradient(145deg, #3b82f6, #8b5cf6)'
+                                                                        : isDark
+                                                                            ? 'linear-gradient(145deg, #2a2a3e, #1a1a2e)'
+                                                                            : 'linear-gradient(145deg, #f8fafc, #e2e8f0)',
+                                                                    color: isPressed ? '#fff' : isDark ? '#888' : '#374151',
+                                                                    boxShadow: isPressed
+                                                                        ? '0 0 15px rgba(139, 92, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.3)'
+                                                                        : isDark
+                                                                            ? 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)'
+                                                                            : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.1)',
+                                                                    transform: isPressed ? 'translateY(2px)' : '',
+                                                                    border: isDark ? 'none' : '1px solid #e2e8f0',
+                                                                }}
+                                                            >
+                                                                {key}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    </div>
+
+                                    <p className="text-center text-xs text-slate-500 mt-4">
+                                        💡 Type on your keyboard to change the background!
+                                    </p>
                                 </div>
                             </div>
-
-                            <p className="text-center text-xs text-slate-500 mt-4">
-                                💡 Type on your keyboard to change the background!
-                            </p>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Scroll indicator */}
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-                    <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                </div>
+            {/* Scroll indicator */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+                <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
             </div>
         </section>
     );
