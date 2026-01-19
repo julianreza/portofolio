@@ -57,46 +57,39 @@ export default function ParallaxSlider() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [isMounted, setIsMounted] = useState(false);
+    const [scrollProgress, setScrollProgress] = useState(0);
 
-    // Ensure component only uses scroll hooks after hydration
+    // Manual scroll tracking that works reliably on Vercel
     useEffect(() => {
-        setIsMounted(true);
+        const handleScroll = () => {
+            if (!containerRef.current) return;
+
+            const rect = containerRef.current.getBoundingClientRect();
+            const containerHeight = containerRef.current.offsetHeight;
+            const viewportHeight = window.innerHeight;
+
+            // Calculate how far we've scrolled through the container
+            // rect.top starts positive, becomes negative as we scroll past
+            const scrolled = -rect.top;
+            const scrollableDistance = containerHeight - viewportHeight;
+
+            if (scrollableDistance > 0) {
+                const progress = Math.max(0, Math.min(1, scrolled / scrollableDistance));
+                setScrollProgress(progress);
+
+                // Calculate active slide index
+                const newIndex = Math.round(progress * (slides.length - 1));
+                setActiveIndex(Math.max(0, Math.min(slides.length - 1, newIndex)));
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll(); // Initial call
+
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ['start start', 'end end']
-    });
-
-    // Calculate which slide should be active based on scroll
-    const slideProgress = useTransform(scrollYProgress, [0, 1], [0, slides.length - 1]);
-
-    // Update active index based on scroll using the modern approach
-    useMotionValueEvent(slideProgress, "change", (latest) => {
-        if (isMounted) {
-            setActiveIndex(Math.round(latest));
-        }
-    });
-
-    // 3D Element parallax transforms
-    const element3DY = useTransform(scrollYProgress, [0, 0.5, 1], [-100, 0, 100]);
-    const element3DRotateX = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [20, 0, -15, 0, 15]);
-    const element3DRotateY = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [-30, 0, 30, 0, -20]);
-    const element3DRotateZ = useTransform(scrollYProgress, [0, 0.5, 1], [-10, 0, 10]);
-    const element3DScale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.8, 1.1, 1.05, 0.9]);
-
-    const smooth3DY = useSpring(element3DY, { stiffness: 50, damping: 20 });
-    const smoothRotateX = useSpring(element3DRotateX, { stiffness: 40, damping: 15 });
-    const smoothRotateY = useSpring(element3DRotateY, { stiffness: 40, damping: 15 });
-    const smoothRotateZ = useSpring(element3DRotateZ, { stiffness: 40, damping: 15 });
-    const smoothScale = useSpring(element3DScale, { stiffness: 50, damping: 20 });
-
-    // Decorative elements parallax
-    const orb1Y = useTransform(scrollYProgress, [0, 1], [0, -200]);
-    const orb2Y = useTransform(scrollYProgress, [0, 1], [0, 150]);
-    const orb3X = useTransform(scrollYProgress, [0, 1], [0, 100]);
-
+    // Mouse move handler
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             setMousePosition({
@@ -108,6 +101,11 @@ export default function ParallaxSlider() {
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
+
+    // Calculate parallax values based on scroll progress
+    const orb1YValue = scrollProgress * -200;
+    const orb2YValue = scrollProgress * 150;
+    const orb3XValue = scrollProgress * 100;
 
     return (
         <section
@@ -136,17 +134,17 @@ export default function ParallaxSlider() {
                 />
 
                 {/* Large floating orbs with parallax */}
-                <motion.div
-                    className={`absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-br ${slides[activeIndex]?.color} rounded-full blur-3xl opacity-25`}
-                    style={{ y: orb1Y }}
+                <div
+                    className={`absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-br ${slides[activeIndex]?.color} rounded-full blur-3xl opacity-25 transition-transform duration-100`}
+                    style={{ transform: `translateY(${orb1YValue}px)` }}
                 />
-                <motion.div
-                    className="absolute top-1/3 -right-32 w-80 h-80 bg-white/5 rounded-full blur-3xl"
-                    style={{ y: orb2Y }}
+                <div
+                    className="absolute top-1/3 -right-32 w-80 h-80 bg-white/5 rounded-full blur-3xl transition-transform duration-100"
+                    style={{ transform: `translateY(${orb2YValue}px)` }}
                 />
-                <motion.div
-                    className={`absolute bottom-20 left-1/4 w-64 h-64 bg-gradient-to-br ${slides[activeIndex]?.color} rounded-full blur-3xl opacity-15`}
-                    style={{ x: orb3X }}
+                <div
+                    className={`absolute bottom-20 left-1/4 w-64 h-64 bg-gradient-to-br ${slides[activeIndex]?.color} rounded-full blur-3xl opacity-15 transition-transform duration-100`}
+                    style={{ transform: `translateX(${orb3XValue}px)` }}
                 />
 
                 {/* Floating particles */}
@@ -319,13 +317,10 @@ export default function ParallaxSlider() {
                                 />
 
                                 {/* 3D Element Container */}
-                                <motion.div
-                                    className="relative"
+                                <div
+                                    className="relative transition-transform duration-100"
                                     style={{
-                                        rotateX: smoothRotateX,
-                                        rotateY: smoothRotateY,
-                                        rotateZ: smoothRotateZ,
-                                        scale: smoothScale,
+                                        transform: `rotateX(${20 - scrollProgress * 35}deg) rotateY(${-30 + scrollProgress * 60}deg) rotateZ(${-10 + scrollProgress * 20}deg) scale(${0.8 + scrollProgress * 0.3})`,
                                         transformStyle: 'preserve-3d',
                                     }}
                                 >
@@ -447,7 +442,7 @@ export default function ParallaxSlider() {
                                             </div>
                                         </motion.div>
                                     </AnimatePresence>
-                                </motion.div>
+                                </div>
 
                                 {/* Floating labels */}
                                 {['Design', 'Code', 'Build', 'Ship'].map((label, i) => (
