@@ -83,10 +83,33 @@ export default function ParallaxSlider() {
             }
         };
 
+        // Add scroll listener
         window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll(); // Initial call
 
-        return () => window.removeEventListener('scroll', handleScroll);
+        // Multiple initialization attempts to ensure it works after hydration
+        // Immediate call
+        handleScroll();
+
+        // After next frame (for layout completion)
+        requestAnimationFrame(() => {
+            handleScroll();
+        });
+
+        // After a short delay (for slow hydration)
+        const timeoutId = setTimeout(() => {
+            handleScroll();
+        }, 100);
+
+        // Another delayed call for very slow connections
+        const timeoutId2 = setTimeout(() => {
+            handleScroll();
+        }, 500);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(timeoutId);
+            clearTimeout(timeoutId2);
+        };
     }, []);
 
     // Mouse move handler
