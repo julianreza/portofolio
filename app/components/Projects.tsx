@@ -170,11 +170,8 @@ const projects: Project[] = [
         skills: ['HTML', 'CSS', 'Bootstrap'],
         images: [
             { src: '/projects/gudeg-manggar/hero_section_gudeg.png', alt: 'Gudeg Manggar - Homepage Hero Section' },
-            { src: '/projects/gudeg-manggar/hero_section_lele.png', alt: 'Mangur Asap Lele - Hero Section' },
             { src: '/projects/gudeg-manggar/menu_section.png', alt: 'Gudeg Manggar - Menu Section' },
             { src: '/projects/gudeg-manggar/about_section.png', alt: 'Gudeg Manggar - About Section' },
-            { src: '/projects/gudeg-manggar/testimonial_section.png', alt: 'Gudeg Manggar - Testimonial Section' },
-            { src: '/projects/gudeg-manggar/contact_section.png', alt: 'Gudeg Manggar - Contact Section' },
         ],
     },
 ];
