@@ -162,15 +162,67 @@ const codeSnippets = [
 ];
 
 
-// Code fragments that appear on keypress
+// Code fragments that appear on keypress - Extended version
 const codeFragments = [
-    'const', 'func', 'return', 'async', 'await', 'import', 'export',
-    'interface', 'type', 'struct', 'if', 'else', 'for', 'range',
-    '() =>', 'useState', 'useEffect', 'Promise', '.then()', '.catch()',
-    'console.log', 'fmt.Println', 'http.Get', 'json.Marshal',
-    'SELECT * FROM', 'INSERT INTO', 'docker run', 'kubectl apply',
-    '<Component />', 'React.FC', 'NextPage', 'gRPC.Server',
-    '{ ... }', '[ ]', '( )', '=>', ':=', '!=', '===', '&&', '||',
+    // JavaScript/TypeScript
+    'const', 'let', 'var', 'function', 'return', 'async', 'await', 'import', 'export',
+    'interface', 'type', 'class', 'extends', 'implements', 'if', 'else', 'for', 'while',
+    '() => {}', 'useState()', 'useEffect()', 'useCallback()', 'useMemo()', 'useRef()',
+    'Promise.all()', '.then()', '.catch()', '.finally()', 'async/await',
+    'console.log()', 'console.error()', 'fetch()', 'JSON.parse()', 'JSON.stringify()',
+    '<Component />', '<div></div>', 'React.FC', 'NextPage', 'NextResponse',
+    'props.children', 'event.target', 'e.preventDefault()', 'onClick={}',
+    'module.exports', 'require()', 'export default', 'import from',
+
+    // Golang
+    'func', 'package', 'import', 'struct', 'interface', 'return',
+    'range', 'defer', 'go', 'chan', 'select', 'case',
+    'fmt.Println()', 'fmt.Sprintf()', 'http.HandleFunc()', 'http.Get()',
+    'json.Marshal()', 'json.Unmarshal()', 'ioutil.ReadAll()',
+    'context.Background()', 'context.WithTimeout()',
+    'errors.New()', 'log.Fatal()', 'time.Now()',
+    'make(map[string]int)', 'make(chan int)', 'make([]int, 0)',
+
+    // SQL
+    'SELECT * FROM', 'INSERT INTO', 'UPDATE SET', 'DELETE FROM',
+    'WHERE', 'JOIN ON', 'LEFT JOIN', 'INNER JOIN', 'GROUP BY',
+    'ORDER BY DESC', 'LIMIT 10', 'OFFSET 0', 'CREATE TABLE',
+    'ALTER TABLE', 'DROP INDEX', 'CREATE INDEX ON',
+
+    // Docker/Kubernetes
+    'docker build -t', 'docker run -d', 'docker push', 'docker pull',
+    'FROM node:18', 'WORKDIR /app', 'COPY . .', 'RUN npm install',
+    'EXPOSE 3000', 'CMD ["node"]', 'ENV NODE_ENV=production',
+    'kubectl apply -f', 'kubectl get pods', 'kubectl logs',
+    'apiVersion: v1', 'kind: Deployment', 'replicas: 3',
+
+    // gRPC/Protobuf
+    'gRPC.Server', 'service', 'rpc', 'message', 'returns',
+    'proto.Marshal()', 'grpc.Dial()', 'stream', 'unary',
+
+    // Operators & Symbols
+    '{ }', '[ ]', '( )', '=>', ':=', '!=', '===', '!==',
+    '&&', '||', '...', '??', '?:', '++', '--', '+=', '-=',
+    '@decorator', '#define', '/* */', '// comment', '/** */',
+
+    // More React/Next.js
+    'getServerSideProps', 'getStaticProps', 'getStaticPaths',
+    'useRouter()', 'usePathname()', 'useSearchParams()',
+    'cookies()', 'headers()', 'redirect()',
+    '<Suspense>', '<ErrorBoundary>', 'loading.tsx',
+
+    // Database/ORM
+    'prisma.user.findMany()', 'db.query()', 'mongoose.connect()',
+    'redis.get()', 'cache.set()', 'transaction.commit()',
+
+    // Testing
+    'describe()', 'it()', 'expect()', 'test()', 'beforeEach()',
+    'jest.mock()', 'vi.fn()', 'render()', 'fireEvent.click()',
+
+    // API
+    'res.json()', 'req.body', 'req.params', 'req.query',
+    'status(200)', 'headers: {}', 'Authorization: Bearer',
+    'Content-Type: application/json', 'CORS', 'middleware',
 ];
 
 const roles = ['Full Stack Engineer', 'Tech Lead', 'Backend Architect', 'Problem Solver'];
@@ -181,11 +233,21 @@ export default function Hero() {
     const [displayedText, setDisplayedText] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+    const [hoveredKey, setHoveredKey] = useState<string | null>(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [keyboardMousePos, setKeyboardMousePos] = useState({ x: 0, y: 0 });
     const [bgColorIndex, setBgColorIndex] = useState(0);
     const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
     const [keyPressCount, setKeyPressCount] = useState(0);
-    const [floatingCode, setFloatingCode] = useState<{ id: number; x: number; y: number; code: string; color: string }[]>([]);
+    const [floatingCode, setFloatingCode] = useState<{ id: number; x: number; y: number; code: string; color: string; size: number; rotation: number }[]>([]);
+    const [isScrolling, setIsScrolling] = useState(false);
+    const [isKeyboardHovered, setIsKeyboardHovered] = useState(false);
+    const [keyboardSpotlight, setKeyboardSpotlight] = useState({ x: 50, y: 50 });
+    const [keyboardRipples, setKeyboardRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+    const [scrollTilt, setScrollTilt] = useState(0);
+    const [lastClickedKey, setLastClickedKey] = useState<{ key: string; time: number } | null>(null);
+    const keyboardRef = useRef<HTMLDivElement>(null);
+    const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const isDark = theme === 'dark';
 
@@ -225,10 +287,12 @@ export default function Hero() {
                     y: Math.random() * 90 + 5,
                     code: randomCode,
                     color: randomColor,
+                    size: Math.random() * 0.5 + 0.8, // Random size 0.8-1.3x
+                    rotation: Math.random() * 20 - 10, // Random rotation -10 to 10 degrees
                 }]);
                 setTimeout(() => {
                     setFloatingCode(prev => prev.filter(c => c.id !== codeId));
-                }, 3000); // Longer display time
+                }, 4000); // Extended display time
             }, i * 50); // Stagger the appearance
         }
     }, []);
@@ -242,8 +306,21 @@ export default function Hero() {
         });
     }, []);
 
-    const handleKeyClick = (key: string) => {
+    const handleKeyClick = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
         setPressedKeys(prev => new Set(prev).add(key));
+        setLastClickedKey({ key, time: Date.now() });
+
+        // Get click position relative to keyboard for ripple
+        if (keyboardRef.current) {
+            const rect = keyboardRef.current.getBoundingClientRect();
+            const x = ((event.clientX - rect.left) / rect.width) * 100;
+            const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+            // Add keyboard ripple
+            const rippleId = Date.now();
+            setKeyboardRipples(prev => [...prev, { id: rippleId, x, y }]);
+            setTimeout(() => setKeyboardRipples(prev => prev.filter(r => r.id !== rippleId)), 800);
+        }
 
         // Change background
         setKeyPressCount(prev => {
@@ -254,7 +331,7 @@ export default function Hero() {
             return newCount;
         });
 
-        // Add ripple
+        // Add ripple to background
         const rippleId = Date.now();
         setRipples(prev => [...prev, { id: rippleId, x: Math.random() * 100, y: Math.random() * 100 }]);
         setTimeout(() => setRipples(prev => prev.filter(r => r.id !== rippleId)), 1000);
@@ -275,10 +352,12 @@ export default function Hero() {
                     y: Math.random() * 90 + 5,
                     code: randomCode,
                     color: randomColor,
+                    size: Math.random() * 0.5 + 0.8,
+                    rotation: Math.random() * 20 - 10,
                 }]);
                 setTimeout(() => {
                     setFloatingCode(prev => prev.filter(c => c.id !== codeId));
-                }, 3000);
+                }, 4000);
             }, i * 50);
         }
 
@@ -321,16 +400,83 @@ export default function Hero() {
                 x: (e.clientX / window.innerWidth - 0.5) * 2,
                 y: (e.clientY / window.innerHeight - 0.5) * 2,
             });
+
+            // Track mouse position relative to keyboard for 3D effect and spotlight
+            if (keyboardRef.current) {
+                const rect = keyboardRef.current.getBoundingClientRect();
+                const relX = (e.clientX - rect.left) / rect.width;
+                const relY = (e.clientY - rect.top) / rect.height;
+
+                setKeyboardMousePos({
+                    x: (relX - 0.5) * 2,
+                    y: (relY - 0.5) * 2,
+                });
+
+                // Update spotlight position (0-100%)
+                setKeyboardSpotlight({
+                    x: relX * 100,
+                    y: relY * 100,
+                });
+            }
+        };
+
+        // Scroll-triggered effects
+        const handleScroll = () => {
+            setIsScrolling(true);
+
+            // Update scroll-based tilt for keyboard
+            const scrollY = window.scrollY;
+            setScrollTilt(Math.sin(scrollY * 0.01) * 5); // Oscillating tilt
+
+            // Clear previous timeout
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
+
+            // Generate floating code on scroll
+            const colors = ['#61DAFB', '#00ADD8', '#3178C6', '#E10098', '#339933', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#14b8a6'];
+            const numCodes = Math.floor(Math.random() * 2) + 2; // 2-3 codes per scroll event
+
+            for (let i = 0; i < numCodes; i++) {
+                const codeId = Date.now() + Math.random() + i;
+                const randomCode = codeFragments[Math.floor(Math.random() * codeFragments.length)];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+                setTimeout(() => {
+                    setFloatingCode(prev => [...prev, {
+                        id: codeId,
+                        x: Math.random() * 85 + 5,
+                        y: Math.random() * 85 + 5,
+                        code: randomCode,
+                        color: randomColor,
+                        size: Math.random() * 0.6 + 0.7,
+                        rotation: Math.random() * 30 - 15,
+                    }]);
+                    setTimeout(() => {
+                        setFloatingCode(prev => prev.filter(c => c.id !== codeId));
+                    }, 5000);
+                }, i * 100);
+            }
+
+            // Reset scrolling state after delay
+            scrollTimeoutRef.current = setTimeout(() => {
+                setIsScrolling(false);
+            }, 200);
         };
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
         window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('scroll', handleScroll, { passive: true });
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
             window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('scroll', handleScroll);
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
         };
     }, [handleKeyDown, handleKeyUp]);
 
@@ -450,14 +596,17 @@ export default function Hero() {
                 {floatingCode.map(code => (
                     <div
                         key={code.id}
-                        className="absolute pointer-events-none font-mono text-sm font-bold animate-pulse"
+                        className="absolute pointer-events-none font-mono font-bold"
                         style={{
                             left: `${code.x}%`,
                             top: `${code.y}%`,
                             color: code.color,
-                            textShadow: `0 0 10px ${code.color}, 0 0 20px ${code.color}`,
-                            animation: 'floatUp 2s ease-out forwards',
-                            opacity: 0.8,
+                            fontSize: `${code.size * 14}px`,
+                            textShadow: `0 0 10px ${code.color}, 0 0 20px ${code.color}, 0 0 40px ${code.color}`,
+                            animation: 'floatUp 4s ease-out forwards',
+                            opacity: 0.9,
+                            transform: `rotate(${code.rotation}deg) scale(${code.size})`,
+                            whiteSpace: 'nowrap',
                         }}
                     >
                         {code.code}
@@ -502,66 +651,121 @@ export default function Hero() {
                     </div>
 
                     {/* Right side - Interactive 3D Keyboard */}
-                    <div className="hidden lg:block" style={{ perspective: '1500px' }}>
+                    <div
+                        className="hidden lg:block"
+                        style={{ perspective: '1500px' }}
+                        ref={keyboardRef}
+                        onMouseEnter={() => setIsKeyboardHovered(true)}
+                        onMouseLeave={() => setIsKeyboardHovered(false)}
+                    >
                         <div
                             style={{
-                                transform: `rotateX(${15 + mousePosition.y * 5}deg) rotateY(${mousePosition.x * 10}deg)`,
+                                transform: `rotateX(${15 + mousePosition.y * 5 + scrollTilt}deg) rotateY(${mousePosition.x * 10}deg) scale(${isKeyboardHovered ? 1.02 : 1})`,
                                 transformStyle: 'preserve-3d',
-                                transition: 'transform 0.1s ease-out',
+                                transition: 'transform 0.15s ease-out',
                             }}
                         >
                             <div>
                                 <div
                                     style={{
-                                        transform: `rotateX(${mousePosition.y * 3}deg) rotateY(${mousePosition.x * 5}deg)`,
+                                        transform: `rotateX(${keyboardMousePos.y * 8}deg) rotateY(${keyboardMousePos.x * 12}deg)`,
                                         transformStyle: 'preserve-3d',
                                         transition: 'transform 0.1s ease-out',
                                     }}
                                 >
                                     <div
-                                        className="rounded-2xl p-3 shadow-2xl transition-all duration-500"
+                                        className="rounded-2xl p-3 shadow-2xl transition-all duration-500 relative overflow-hidden"
                                         style={{
                                             background: isDark
                                                 ? 'linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%)'
                                                 : 'linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)',
                                             boxShadow: isDark
-                                                ? `0 50px 100px -20px rgba(0, 0, 0, 0.7), 0 0 ${pressedKeys.size * 20}px rgba(139, 92, 246, 0.3)`
-                                                : `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 ${pressedKeys.size * 20}px rgba(59, 130, 246, 0.2)`,
+                                                ? `0 50px 100px -20px rgba(0, 0, 0, 0.7), 0 0 ${pressedKeys.size * 20 + (hoveredKey ? 15 : 0) + (isKeyboardHovered ? 20 : 0)}px rgba(139, 92, 246, 0.3)`
+                                                : `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 ${pressedKeys.size * 20 + (hoveredKey ? 15 : 0) + (isKeyboardHovered ? 20 : 0)}px rgba(59, 130, 246, 0.2)`,
                                         }}
                                     >
+                                        {/* Cursor spotlight effect */}
+                                        {isKeyboardHovered && (
+                                            <div
+                                                className="absolute pointer-events-none transition-all duration-75"
+                                                style={{
+                                                    left: `${keyboardSpotlight.x}%`,
+                                                    top: `${keyboardSpotlight.y}%`,
+                                                    transform: 'translate(-50%, -50%)',
+                                                    width: '200px',
+                                                    height: '200px',
+                                                    background: `radial-gradient(circle, ${isDark ? 'rgba(139, 92, 246, 0.25)' : 'rgba(99, 102, 241, 0.2)'} 0%, transparent 70%)`,
+                                                    borderRadius: '50%',
+                                                }}
+                                            />
+                                        )}
+
+                                        {/* Click ripple effects on keyboard */}
+                                        {keyboardRipples.map(ripple => (
+                                            <div
+                                                key={ripple.id}
+                                                className="absolute pointer-events-none animate-ping"
+                                                style={{
+                                                    left: `${ripple.x}%`,
+                                                    top: `${ripple.y}%`,
+                                                    transform: 'translate(-50%, -50%)',
+                                                    width: '100px',
+                                                    height: '100px',
+                                                    background: `radial-gradient(circle, ${isDark ? 'rgba(236, 72, 153, 0.4)' : 'rgba(99, 102, 241, 0.3)'} 0%, transparent 70%)`,
+                                                    borderRadius: '50%',
+                                                }}
+                                            />
+                                        ))}
+
                                         {/* LED strip */}
                                         <div
                                             className="absolute -bottom-1 left-4 right-4 h-1 rounded-full transition-all duration-300"
                                             style={{
-                                                background: `linear-gradient(90deg, ${pressedKeys.size > 0 ? '#ec4899' : '#3b82f6'}, #8b5cf6, ${pressedKeys.size > 0 ? '#3b82f6' : '#ec4899'})`,
-                                                boxShadow: `0 0 ${20 + pressedKeys.size * 10}px ${pressedKeys.size > 0 ? '#ec4899' : '#8b5cf6'}`,
+                                                background: `linear-gradient(90deg, ${pressedKeys.size > 0 || hoveredKey || isKeyboardHovered ? '#ec4899' : '#3b82f6'}, #8b5cf6, ${pressedKeys.size > 0 || hoveredKey || isKeyboardHovered ? '#3b82f6' : '#ec4899'})`,
+                                                boxShadow: `0 0 ${20 + pressedKeys.size * 10 + (hoveredKey ? 10 : 0) + (isKeyboardHovered ? 15 : 0)}px ${pressedKeys.size > 0 || hoveredKey || isKeyboardHovered ? '#ec4899' : '#8b5cf6'}`,
                                             }}
                                         />
 
-                                        <div className="flex flex-col gap-1">
+                                        <div className="flex flex-col gap-1 relative z-10">
                                             {keyboardLayout.map((row, rowIndex) => (
                                                 <div key={rowIndex} className="flex gap-1 justify-center">
                                                     {row.map((key, keyIndex) => {
                                                         const isPressed = pressedKeys.has(key) || pressedKeys.has(key.toUpperCase());
+                                                        const isHovered = hoveredKey === key;
+                                                        const wasRecentlyClicked = lastClickedKey?.key === key && Date.now() - lastClickedKey.time < 300;
                                                         return (
                                                             <button
                                                                 key={`${rowIndex}-${keyIndex}`}
-                                                                onClick={() => handleKeyClick(key)}
-                                                                className={`${getKeyWidth(key)} h-8 rounded-md flex items-center justify-center text-[10px] font-medium select-none transition-all duration-100 hover:brightness-110`}
+                                                                onClick={(e) => handleKeyClick(key, e)}
+                                                                onMouseEnter={() => setHoveredKey(key)}
+                                                                onMouseLeave={() => setHoveredKey(null)}
+                                                                className={`${getKeyWidth(key)} h-8 rounded-md flex items-center justify-center text-[10px] font-medium select-none transition-all duration-150`}
                                                                 style={{
-                                                                    background: isPressed
+                                                                    background: isPressed || wasRecentlyClicked
                                                                         ? 'linear-gradient(145deg, #3b82f6, #8b5cf6)'
-                                                                        : isDark
-                                                                            ? 'linear-gradient(145deg, #2a2a3e, #1a1a2e)'
-                                                                            : 'linear-gradient(145deg, #f8fafc, #e2e8f0)',
-                                                                    color: isPressed ? '#fff' : isDark ? '#888' : '#374151',
-                                                                    boxShadow: isPressed
-                                                                        ? '0 0 15px rgba(139, 92, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.3)'
-                                                                        : isDark
-                                                                            ? 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)'
-                                                                            : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.1)',
-                                                                    transform: isPressed ? 'translateY(2px)' : '',
-                                                                    border: isDark ? 'none' : '1px solid #e2e8f0',
+                                                                        : isHovered
+                                                                            ? isDark
+                                                                                ? 'linear-gradient(145deg, #3a3a5e, #2a2a4e)'
+                                                                                : 'linear-gradient(145deg, #e0e7ff, #c7d2fe)'
+                                                                            : isDark
+                                                                                ? 'linear-gradient(145deg, #2a2a3e, #1a1a2e)'
+                                                                                : 'linear-gradient(145deg, #f8fafc, #e2e8f0)',
+                                                                    color: isPressed || wasRecentlyClicked ? '#fff' : isHovered ? (isDark ? '#a5b4fc' : '#4f46e5') : isDark ? '#888' : '#374151',
+                                                                    boxShadow: isPressed || wasRecentlyClicked
+                                                                        ? '0 0 20px rgba(139, 92, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.4)'
+                                                                        : isHovered
+                                                                            ? isDark
+                                                                                ? '0 0 15px rgba(139, 92, 246, 0.5), 0 6px 12px rgba(0,0,0,0.5)'
+                                                                                : '0 0 15px rgba(99, 102, 241, 0.4), 0 6px 12px rgba(0,0,0,0.2)'
+                                                                            : isDark
+                                                                                ? 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)'
+                                                                                : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.1)',
+                                                                    transform: isPressed || wasRecentlyClicked
+                                                                        ? 'translateY(3px) scale(0.92)'
+                                                                        : isHovered
+                                                                            ? 'translateY(-3px) scale(1.08)'
+                                                                            : '',
+                                                                    border: isDark ? 'none' : isHovered ? '1px solid #c7d2fe' : '1px solid #e2e8f0',
                                                                 }}
                                                             >
                                                                 {key}
@@ -574,7 +778,7 @@ export default function Hero() {
                                     </div>
 
                                     <p className="text-center text-xs text-slate-500 mt-4">
-                                        💡 Type on your keyboard to change the background!
+                                        ✨ Hover, click, scroll, or type to interact!
                                     </p>
                                 </div>
                             </div>

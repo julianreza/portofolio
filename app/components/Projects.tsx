@@ -24,96 +24,144 @@ const projects: Project[] = [
         description: 'Engineered a robust loyalty points engine powering millions of transactions across BRIMO mobile and BRI EDC terminals. Features seamless point accrual, redemption, and fraud-resistant void mechanisms.',
         category: 'Banking',
         skills: ['Golang', 'gRPC', 'Microservices'],
+        images: [
+            { src: '/projects/brimo-loyalty/dashboard.png', alt: 'BRIMO Loyalty - Dashboard' },
+        ],
     },
     {
         title: 'BRIMO Loyalty Referral',
         description: 'Built a viral referral system that incentivizes customer growth through smart reward mechanics. Designed for scale to handle surge traffic during promotional campaigns.',
         category: 'Banking',
         skills: ['Golang', 'gRPC', 'Microservices'],
+        images: [
+            { src: '/projects/brimo-loyalty/referral.png', alt: 'BRIMO Referral - Dashboard' },
+        ],
     },
     {
         title: 'Kadin SuperApps',
         description: 'Transformed Indonesia\'s Chamber of Commerce digital presence with a unified super-app platform. Consolidated multiple legacy systems into one modern, scalable architecture.',
         category: 'Enterprise',
         skills: ['Golang', 'gRPC', 'ReactJS'],
+        images: [
+            { src: '/projects/kadin-superapps/dashboard.png', alt: 'Kadin SuperApps - Dashboard' },
+        ],
     },
     {
         title: 'Kadin Anggota',
         description: 'Streamlined membership management with an intelligent registration system and real-time analytics dashboard. Reduced processing time by 60% while improving data accuracy.',
         category: 'Enterprise',
         skills: ['Laravel'],
+        images: [
+            { src: '/projects/kadin-superapps/dashboard.png', alt: 'Kadin Anggota - Dashboard' },
+        ],
     },
     {
         title: 'JAPFA IoT Platform',
         description: 'Pioneered an IoT integration platform connecting industrial machinery to the cloud. Real-time telemetry via MQTT with stunning Grafana visualizations for operational insights.',
         category: 'IoT',
         skills: ['Golang', 'MQTT', 'Grafana'],
+        images: [
+            { src: '/projects/japfa-iot/dashboard.png', alt: 'JAPFA IoT - Dashboard' },
+        ],
     },
     {
         title: 'Genomik Solidaritas Indonesia',
         description: 'Rapidly deployed a COVID-19 testing management system during the pandemic. Handled 10,000+ daily registrations with automated scheduling and instant result notifications.',
         category: 'Healthcare',
         skills: ['ReactJS', 'Golang', 'GraphQL', 'gRPC', 'Microservices'],
+        images: [
+            { src: '/projects/genomik-solidaritas/dashboard.png', alt: 'Genomik Solidaritas - Dashboard' },
+        ],
     },
     {
         title: 'E-KAN Marketplace',
         description: 'Created a B2B marketplace connecting fresh produce suppliers with restaurants and retailers. Features real-time inventory, dynamic pricing, and seamless order fulfillment.',
         category: 'E-Commerce',
         skills: ['ReactJS', 'React Native', 'ExpressJS', 'Firebase'],
+        images: [
+            { src: '/projects/e-kan/marketplace.png', alt: 'E-KAN Marketplace' },
+        ],
     },
     {
         title: 'Freight Forward Web',
         description: 'Digitized logistics operations with a comprehensive shipment tracking platform. Real-time visibility from warehouse to delivery with automated documentation.',
         category: 'Logistics',
         skills: ['React JS', 'NodeJS', 'GraphQL', 'SQL'],
+        images: [
+            { src: '/projects/freight-forward/dashboard.png', alt: 'Freight Forward - Dashboard' },
+        ],
     },
     {
         title: 'Freight Forward Mobile',
         description: 'Put logistics management in drivers\' pockets with a mobile-first delivery app. GPS tracking, proof of delivery, and instant status updates for stakeholders.',
         category: 'Logistics',
         skills: ['React Native', 'NodeJS', 'GraphQL', 'Firebase', 'SQL'],
+        images: [
+            { src: '/projects/freight-forward/dashboard.png', alt: 'Freight Forward Mobile - Dashboard' },
+        ],
     },
     {
         title: 'Thread Research Analytics',
         description: 'Built an analytics powerhouse for clinical research teams. Interactive dashboards visualize KPIs across multiple studies with drill-down capabilities.',
         category: 'Healthcare',
         skills: ['VueJS', 'NodeJS', 'MySQL'],
+        images: [
+            { src: '/projects/thread-research/dashboard.png', alt: 'Thread Research - Dashboard' },
+        ],
     },
     {
         title: 'IFCA Property Sales V3',
         description: 'End-to-end property sales solution handling reservations, payments, transfers, and legal documentation. Reduced sales cycle time by 35% with automated workflows.',
         category: 'Property',
         skills: ['ReactJS', 'Redux', 'CodeIgniter'],
+        images: [
+            { src: '/projects/ifca-property/dashboard.png', alt: 'IFCA Property Sales - Dashboard' },
+        ],
     },
     {
         title: 'IFCA Property Sales V2',
         description: 'Second-generation property CRM with enhanced reporting and sales pipeline management. Robust architecture serving 50+ property developments.',
         category: 'Property',
         skills: ['Angular 5', 'CodeIgniter'],
+        images: [
+            { src: '/projects/ifca-property/dashboard.png', alt: 'IFCA Property Sales V2 - Dashboard' },
+        ],
     },
     {
         title: 'IFCA Property Mobile',
         description: 'Empowered sales agents with mobile access to inventory, pricing, and customer data. Offline-capable for on-site presentations.',
         category: 'Property',
         skills: ['Ionic', 'PHP', 'CodeIgniter'],
+        images: [
+            { src: '/projects/ifca-property/dashboard.png', alt: 'IFCA Property Mobile - Dashboard' },
+        ],
     },
     {
         title: 'IFCA Space Management',
         description: 'Commercial space rental solution featuring booking management, billing automation, and occupancy analytics. Increased revenue visibility for property managers.',
         category: 'Property',
         skills: ['CodeIgniter', 'Bootstrap', 'jQuery', 'Ajax', 'ChartJS'],
+        images: [
+            { src: '/projects/ifca-property/dashboard.png', alt: 'IFCA Space Management - Dashboard' },
+        ],
     },
     {
         title: 'IFCA Space Mobile',
         description: 'Mobile companion app for commercial tenants. Self-service booking, payment history, and maintenance request submission.',
         category: 'Property',
         skills: ['React Native', 'CodeIgniter'],
+        images: [
+            { src: '/projects/ifca-property/dashboard.png', alt: 'IFCA Space Mobile - Dashboard' },
+        ],
     },
     {
         title: 'Student Portal',
         description: 'Academic management system for tracking student grades and attendance. Intuitive interface for teachers with parent notification features.',
         category: 'Education',
         skills: ['Angular 5', 'CodeIgniter'],
+        images: [
+            { src: '/projects/student-portal/dashboard.png', alt: 'Student Portal - Dashboard' },
+        ],
     },
     {
         title: 'Gudeg Manggar Restaurant',
@@ -121,9 +169,12 @@ const projects: Project[] = [
         category: 'Other',
         skills: ['HTML', 'CSS', 'Bootstrap'],
         images: [
-            { src: '/projects/gudeg-manggar/gudeg_manggar_hero_1768465035284.png', alt: 'Gudeg Manggar - Homepage Hero Section' },
-            { src: '/projects/gudeg-manggar/gudeg_manggar_menu_1768465062414.png', alt: 'Gudeg Manggar - Menu Page' },
-            { src: '/projects/gudeg-manggar/gudeg_manggar_about_1768465083378.png', alt: 'Gudeg Manggar - About Page' },
+            { src: '/projects/gudeg-manggar/hero_section_gudeg.png', alt: 'Gudeg Manggar - Homepage Hero Section' },
+            { src: '/projects/gudeg-manggar/hero_section_lele.png', alt: 'Mangur Asap Lele - Hero Section' },
+            { src: '/projects/gudeg-manggar/menu_section.png', alt: 'Gudeg Manggar - Menu Section' },
+            { src: '/projects/gudeg-manggar/about_section.png', alt: 'Gudeg Manggar - About Section' },
+            { src: '/projects/gudeg-manggar/testimonial_section.png', alt: 'Gudeg Manggar - Testimonial Section' },
+            { src: '/projects/gudeg-manggar/contact_section.png', alt: 'Gudeg Manggar - Contact Section' },
         ],
     },
 ];
